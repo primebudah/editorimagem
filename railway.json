@@ -1,10 +1,14 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "buildCommand": "dotnet build AIImageChat.Simple/AIImageChat.Simple.csproj",
+    "watchPatterns": [
+      "AIImageChat.Simple/**"
+    ]
   },
   "deploy": {
-    "startCommand": "dotnet AIImageChat.Simple.dll",
+    "startCommand": "dotnet AIImageChat.Simple/bin/Release/net8.0/AIImageChat.Simple.dll",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE"
