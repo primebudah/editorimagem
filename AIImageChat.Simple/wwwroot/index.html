@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3), 0 0 30px rgba(0, 212, 255, 0.2);
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        /* Tela inicial - zona de drop em tela cheia */
+        #initialDropZone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+        
+        #initialDropZone:hover {
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+        }
+        
+        #initialDropZone.dragover {
+            background: linear-gradient(135deg, #0a0a3a 0%, #1a1a5a 100%);
+        }
+        
+        #initialDropZone h1 {
+            display: block;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        #initialDropZone p {
+            font-size: 24px;
+            color: #aaa;
+        }
+        
+        #initialDropZone input {
+            display: none;
+        }
+        
+        /* Interface principal após upload */
+        #mainInterface {
+            display: none;
+        }
+        
+        .comparison-container {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            align-items: flex-start;
+        }
+        
+        .image-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .image-panel img {
+            max-width: 100%;
+            max-height: 700px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .image-panel .zoom-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: none;
+        }
+        
+        .image-panel .zoom-container img {
+            max-width: 100%;
+            max-height: 700px;
+            object-fit: contain;
+            cursor: grab;
+            pointer-events: auto;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: none;
+            will-change: transform;
+        }
+        
+        .image-panel .zoom-container img:active {
+            cursor: grabbing;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .controls-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .prompt-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .prompt-container input {
+            flex: 1;
+        }
+        
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 100, 100, 0.4);
+        }
+        
+        textarea {
+            display: none;
+        }
+        
+        #promptInput {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background: #fff;
+            border: none;
+            border-radius: 8px;
+            color: #333;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+        
+        #promptInput:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .download-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        input[type="text"] {
+            background: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: #333;
+            width: 200px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+            padding: 12px 24px;
+            font-size: 16px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .download-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
+        }
+        
+        /* Animação de reticências */
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        
+        .processing-text::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela inicial - zona de drop em tela cheia -->
+    <div id="initialDropZone" ondrop="handleInitialDrop(event)" ondragover="handleInitialDragOver(event)" onclick="document.getElementById('initialFileInput').click()">
+        <h1>Primo´s editor image</h1>
+        <p>Arraste uma imagem aqui ou clique para selecionar</p>
+        <input type="file" id="initialFileInput" accept="image/*" style="display: none;" onchange="handleInitialFileSelect(event)">
+    </div>
+    
+    <!-- Interface principal após upload -->
+    <div id="mainInterface">
+        <div class="container">
+            <div class="controls-center">
+                <div class="prompt-container">
+                    <input type="text" id="promptInput" placeholder="Digite sua instrução de edição...">
+                    <button class="clear-btn" onclick="clearPrompt()">×</button>
+                </div>
+                <button id="editButton" onclick="editImage()">Go! Go! Go!</button>
+            </div>
+            <div class="comparison-container">
+                <div class="image-panel">
+                    <div id="originalImageContainer">
+                        <p style="color: #666;">Nenhuma imagem carregada</p>
+                    </div>
+                </div>
+                
+                <div class="image-panel">
+                    <div id="editedImageContainer">
+                        <p style="color: #666;">Imagem editada aparecerá aqui</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        let uploadedFile = null;
+        
+        // Funções para a tela inicial
+        function handleInitialDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('initialDropZone').classList.add('dragover');
+        }
+
+        function handleInitialDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('initialDropZone').classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                uploadedFile = files[0];
+                showMainInterface(files[0]);
+            }
+        }
+
+        function handleInitialFileSelect(event) {
+            if (event.target.files.length > 0) {
+                uploadedFile = event.target.files[0];
+                showMainInterface(event.target.files[0]);
+            }
+        }
+
+        function showMainInterface(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Ocultar tela inicial
+                document.getElementById('initialDropZone').style.display = 'none';
+                
+                // Mostrar interface principal
+                document.getElementById('mainInterface').style.display = 'block';
+                
+                // Mostrar imagem original
+                const originalContainer = document.getElementById('originalImageContainer');
+                originalContainer.innerHTML = `
+                    <div class="zoom-container" id="originalZoomContainer">
+                        <img src="${e.target.result}" alt="Imagem original" id="originalImage" draggable="false" ondragstart="return false;">
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="zoomIn('original')">+</button>
+                            <button class="zoom-btn" onclick="zoomOut('original')">-</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Auto-focar no campo de prompt
+                document.getElementById('promptInput').focus();
+                
+                // Inicializar pan para imagem original após carregar
+                setTimeout(() => initPan('original'), 100);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Função para limpar o prompt
+        function clearPrompt() {
+            document.getElementById('promptInput').value = '';
+            document.getElementById('promptInput').focus();
+        }
+
+        // Função para download
+        function downloadImage(imageUrl) {
+            const filename = document.getElementById('filenameInput').value || 'edited_image';
+            const a = document.createElement('a');
+            a.href = imageUrl;
+            a.download = filename + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Tocar som de sino zen
+        function playZenBell() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Configurar som de sino zen (frequência e envelope)
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.type = 'sine';
+            
+            // Envelope de amplitude para som de sino
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 1.5);
+        }
+
+        // Função principal de edição
+        async function editImage() {
+            console.log('[DEBUG] Botão clicado, função editImage iniciada');
+            
+            const promptInput = document.getElementById('promptInput');
+            const resultDiv = document.getElementById('result');
+            const button = document.getElementById('editButton');
+            
+            console.log('[DEBUG] uploadedFile:', uploadedFile);
+            console.log('[DEBUG] promptInput.value:', promptInput?.value);
+            
+            if (!uploadedFile) {
+                alert('Selecione uma imagem');
+                return;
+            }
+            
+            if (!promptInput.value.trim()) {
+                alert('Digite uma instrução');
+                return;
+            }
+            
+            // Mudar botão para "Calma FIII..." com animação de reticências
+            const originalButtonText = button.textContent;
+            button.textContent = 'Calma FIII';
+            button.classList.add('processing-text');
+            button.disabled = true;
+            
+            console.log('[DEBUG] Botão mudado para Calma FIII...');
+            
+            const formData = new FormData();
+            formData.append('image', uploadedFile);
+            formData.append('prompt', promptInput.value);
+            
+            console.log('[DEBUG] FormData criado');
+            
+            const t1 = performance.now();
+            console.log(`[PERF] [T1] Início da requisição frontend: ${t1.toFixed(2)}ms`);
+            
+            resultDiv.innerHTML = '';
+            
+            try {
+                console.log('[DEBUG] Iniciando fetch para /api/edit-image');
+                
+                const t2 = performance.now();
+                console.log(`[PERF] [T2] Preparação concluída: ${t2.toFixed(2)}ms (Delta: ${(t2 - t1).toFixed(2)}ms)`);
+                
+                const response = await fetch('/api/edit-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('[DEBUG] Resposta recebida:', response.status);
+                
+                const t3 = performance.now();
+                console.log(`[PERF] [T3] Resposta recebida do backend: ${t3.toFixed(2)}ms (Delta: ${(t3 - t2).toFixed(2)}ms)`);
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao processar imagem');
+                }
+                
+                const blob = await response.blob();
+                const t4 = performance.now();
+                console.log(`[PERF] [T4] Blob recebido: ${t4.toFixed(2)}ms (Delta: ${(t4 - t3).toFixed(2)}ms)`);
+                
+                const imageUrl = URL.createObjectURL(blob);
+                
+                // Mostrar imagem editada no painel direito
+                const editedContainer = document.getElementById('editedImageContainer');
+                editedContainer.innerHTML = `
+                    <div class="zoom-container" id="editedZoomContainer">
+                        <img src="${imageUrl}" alt="Imagem editada" id="editedImage" draggable="false" ondragstart="return false;" onload="console.log('[PERF] [T8] Imagem exibida: ' + performance.now().toFixed(2) + 'ms')">
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="zoomIn('edited')">+</button>
+                            <button class="zoom-btn" onclick="zoomOut('edited')">-</button>
+                        </div>
+                    </div>
+                    <div class="download-section">
+                        <input type="text" id="filenameInput" placeholder="Nome do arquivo">
+                        <button onclick="downloadImage('${imageUrl}')" class="download-btn">Baixar</button>
+                    </div>
+                `;
+                
+                // Inicializar pan para imagem editada após carregar
+                setTimeout(() => initPan('edited'), 100);
+                
+                // Tocar som de sino zen
+                playZenBell();
+                
+                resultDiv.innerHTML = '';
+                
+                const t5 = performance.now();
+                console.log(`[PERF] [T5] DOM atualizado: ${t5.toFixed(2)}ms (Delta: ${(t5 - t4).toFixed(2)}ms)`);
+                
+                console.log(`[PERF] ===== RESUMO FRONTEND =====`);
+                console.log(`[PERF] Tempo Preparação (T2-T1): ${(t2 - t1).toFixed(2)}ms`);
+                console.log(`[PERF] Tempo Backend (T3-T2): ${(t3 - t2).toFixed(2)}ms`);
+                console.log(`[PERF] Tempo Download (T4-T3): ${(t4 - t3).toFixed(2)}ms`);
+                console.log(`[PERF] Tempo DOM (T5-T4): ${(t5 - t4).toFixed(2)}ms`);
+                console.log(`[PERF] Tempo Total Frontend (T5-T1): ${(t5 - t1).toFixed(2)}ms`);
+                console.log(`[PERF] ===== FIM RESUMO =====`);
+            } catch (error) {
+                console.error('[DEBUG] Erro capturado:', error);
+                const tError = performance.now();
+                console.log(`[PERF] [ERRO] Erro em: ${tError.toFixed(2)}ms`);
+                resultDiv.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
+            } finally {
+                // Restaurar botão
+                button.textContent = originalButtonText;
+                button.classList.remove('processing-text');
+                button.disabled = false;
+                console.log('[DEBUG] Botão restaurado');
+            }
+        }
+
+        // Suportar Enter no campo de prompt
+        document.addEventListener('DOMContentLoaded', function() {
+            const promptInput = document.getElementById('promptInput');
+            if (promptInput) {
+                promptInput.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                        event.preventDefault();
+                        editImage();
+                    }
+                });
+            }
+        });
+        
+        // Funções de zoom
+        const zoomLevels = {
+            original: 1,
+            edited: 1
+        };
+        
+        const translateValues = {
+            original: { x: 0, y: 0 },
+            edited: { x: 0, y: 0 }
+        };
+        
+        function updateTransform(imageType) {
+            const img = document.getElementById(`${imageType}Image`);
+            if (!img) return;
+            
+            const zoom = zoomLevels[imageType];
+            const translate = translateValues[imageType];
+            img.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${zoom})`;
+        }
+        
+        function zoomIn(imageType) {
+            const container = document.getElementById(`${imageType}ZoomContainer`);
+            const img = document.getElementById(`${imageType}Image`);
+            if (!container || !img) return;
+            
+            zoomLevels[imageType] = Math.min(zoomLevels[imageType] + 0.5, 5);
+            updateTransform(imageType);
+        }
+        
+        function zoomOut(imageType) {
+            const container = document.getElementById(`${imageType}ZoomContainer`);
+            const img = document.getElementById(`${imageType}Image`);
+            if (!container || !img) return;
+            
+            zoomLevels[imageType] = Math.max(zoomLevels[imageType] - 0.5, 1);
+            
+            // Reset translate se zoom for 1
+            if (zoomLevels[imageType] === 1) {
+                translateValues[imageType] = { x: 0, y: 0 };
+            }
+            
+            updateTransform(imageType);
+        }
+        
+        // Função de pan (arrastar imagem com zoom)
+        function initPan(imageType) {
+            const container = document.getElementById(`${imageType}ZoomContainer`);
+            const img = document.getElementById(`${imageType}Image`);
+            if (!container || !img) return;
+            
+            let isDragging = false;
+            let startX, startY;
+            let initialTranslateX = 0, initialTranslateY = 0;
+            
+            // Prevenir drag nativo do navegador
+            img.setAttribute('draggable', 'false');
+            container.setAttribute('draggable', 'false');
+            
+            const preventDrag = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            };
+            
+            img.addEventListener('dragstart', preventDrag);
+            container.addEventListener('dragstart', preventDrag);
+            
+            // Pointerdown no container
+            container.addEventListener('pointerdown', function(e) {
+                if (zoomLevels[imageType] > 1) {
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialTranslateX = translateValues[imageType].x;
+                    initialTranslateY = translateValues[imageType].y;
+                    img.style.cursor = 'grabbing';
+                    e.preventDefault();
+                }
+            });
+            
+            // Pointermove no document
+            const handlePointerMove = function(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                translateValues[imageType].x = initialTranslateX + deltaX;
+                translateValues[imageType].y = initialTranslateY + deltaY;
+                updateTransform(imageType);
+            };
+            
+            // Pointerup no document
+            const handlePointerUp = function() {
+                if (isDragging) {
+                    isDragging = false;
+                    img.style.cursor = 'grab';
+                }
+            };
+            
+            document.addEventListener('pointermove', handlePointerMove);
+            document.addEventListener('pointerup', handlePointerUp);
+            document.addEventListener('pointercancel', handlePointerUp);
+        }
+        
+        // Inicializar pan para imagem original também
+        // Removido do DOMContentLoaded pois a imagem é carregada dinamicamente
+        // initPan('original') é chamado em showMainInterface()
+    </script>
+</body>
+</html>

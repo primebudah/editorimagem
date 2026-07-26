@@ -1,0 +1,186 @@
+<Window x:Class="AIImageChat.Views.ImageViewerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Visualizador de Imagem"
+        Height="600"
+        Width="800"
+        MinHeight="400"
+        MinWidth="600"
+        Background="{StaticResource BackgroundColor}"
+        WindowStartupLocation="CenterOwner">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Área de visualização -->
+        <Border Grid.Row="0"
+                Background="{StaticResource SecondaryBackgroundColor}"
+                ClipToBounds="True">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Border BorderBrush="{StaticResource BorderColor}"
+                            BorderThickness="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                        <Image Source="{Binding ImageSource}"
+                               Stretch="Uniform"
+                               MaxWidth="800"
+                               MaxHeight="500">
+                            <Image.LayoutTransform>
+                                <ScaleTransform ScaleX="{Binding Zoom}" ScaleY="{Binding Zoom}"/>
+                            </Image.LayoutTransform>
+                        </Image>
+                    </Border>
+
+                    <!-- Controles de zoom sobrepostos -->
+                    <StackPanel VerticalAlignment="Bottom"
+                                HorizontalAlignment="Right"
+                                Margin="16">
+                        <Button Content="+"
+                                Width="40"
+                                Height="40"
+                                Background="{StaticResource TertiaryBackgroundColor}"
+                                Foreground="{StaticResource ForegroundColor}"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource BorderColor}"
+                                Command="{Binding ZoomInCommand}"
+                                Cursor="Hand"
+                                Margin="0,0,0,4"/>
+                        <Button Content="-"
+                                Width="40"
+                                Height="40"
+                                Background="{StaticResource TertiaryBackgroundColor}"
+                                Foreground="{StaticResource ForegroundColor}"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource BorderColor}"
+                                Command="{Binding ZoomOutCommand}"
+                                Cursor="Hand"
+                                Margin="0,0,0,4"/>
+                        <Button Content="⟲"
+                                Width="40"
+                                Height="40"
+                                Background="{StaticResource TertiaryBackgroundColor}"
+                                Foreground="{StaticResource ForegroundColor}"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource BorderColor}"
+                                Command="{Binding ResetZoomCommand}"
+                                Cursor="Hand"/>
+                    </StackPanel>
+
+                    <!-- Botão de tela cheia -->
+                    <Button Content="⛶"
+                            Width="40"
+                            Height="40"
+                            Background="{StaticResource TertiaryBackgroundColor}"
+                            Foreground="{StaticResource ForegroundColor}"
+                            BorderThickness="1"
+                            BorderBrush="{StaticResource BorderColor}"
+                            Command="{Binding ToggleFullscreenCommand}"
+                            Cursor="Hand"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="16"/>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Barra de ferramentas inferior -->
+        <Border Grid.Row="1"
+                Background="{StaticResource SecondaryBackgroundColor}"
+                BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="0,1,0,0"
+                Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Informações da imagem -->
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Caption}"
+                               Foreground="{StaticResource ForegroundColor}"
+                               FontSize="14"
+                               TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Zoom, StringFormat='Zoom: {0:F0}%'}"
+                               Foreground="{StaticResource SecondaryForegroundColor}"
+                               FontSize="12"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Botões de exportação -->
+                <WrapPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="PNG"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding SavePngCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="JPG"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding SaveJpgCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="WEBP"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding SaveWebpCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="TIFF"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding SaveTiffCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="PDF"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding SavePdfCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="Copiar"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding CopyImageCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="Salvar como..."
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="90"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding SaveAsCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="Abrir pasta"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="90"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Command="{Binding OpenFolderCommand}"
+                            Cursor="Hand"/>
+                    <Button Content="Fechar"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Width="70"
+                            Height="32"
+                            Command="{Binding CloseCommand}"
+                            Cursor="Hand"/>
+                </WrapPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
