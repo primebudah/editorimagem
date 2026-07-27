@@ -4,7 +4,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AIImageChat", "AIImageChat\AIImageChat.csproj", "{YOUR-PROJECT-GUID-HERE}"
 EndProject
-Project("{930C7803-8E5A-4B3C-94E8-0C8F5B5F5A5F}") = "AIImageChat.Setup", "AIImageChat.Setup\AIImageChat.Setup.wixproj", "{YOUR-WIX-GUID-HERE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AIImageChat.Simple", "AIImageChat.Simple\AIImageChat.Simple.csproj", "{YOUR-SIMPLE-GUID-HERE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AIImageChat.Web", "AIImageChat.Web\AIImageChat.Web.csproj", "{YOUR-WEB-GUID-HERE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,9 +18,13 @@ Global
 		{YOUR-PROJECT-GUID-HERE}.Debug|x86.Build.0 = Debug|x86
 		{YOUR-PROJECT-GUID-HERE}.Release|x86.ActiveCfg = Release|x86
 		{YOUR-PROJECT-GUID-HERE}.Release|x86.Build.0 = Release|x86
-		{YOUR-WIX-GUID-HERE}.Debug|x86.ActiveCfg = Debug|x86
-		{YOUR-WIX-GUID-HERE}.Debug|x86.Build.0 = Debug|x86
-		{YOUR-WIX-GUID-HERE}.Release|x86.ActiveCfg = Release|x86
-		{YOUR-WIX-GUID-HERE}.Release|x86.Build.0 = Release|x86
+		{YOUR-SIMPLE-GUID-HERE}.Debug|x86.ActiveCfg = Debug|x86
+		{YOUR-SIMPLE-GUID-HERE}.Debug|x86.Build.0 = Debug|x86
+		{YOUR-SIMPLE-GUID-HERE}.Release|x86.ActiveCfg = Release|x86
+		{YOUR-SIMPLE-GUID-HERE}.Release|x86.Build.0 = Release|x86
+		{YOUR-WEB-GUID-HERE}.Debug|x86.ActiveCfg = Debug|x86
+		{YOUR-WEB-GUID-HERE}.Debug|x86.Build.0 = Debug|x86
+		{YOUR-WEB-GUID-HERE}.Release|x86.ActiveCfg = Release|x86
+		{YOUR-WEB-GUID-HERE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal
