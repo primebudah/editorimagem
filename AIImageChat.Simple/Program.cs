@@ -271,10 +271,10 @@ Solicitação do usuário:
 .WithName("EditImage")
 .WithOpenApi();
 
-Console.WriteLine("===== APPLICATION STARTING =====");
-Console.WriteLine($"PORT: {Environment.GetEnvironmentVariable("PORT")}");
-Console.WriteLine($"ASPNETCORE_URLS: {Environment.GetEnvironmentVariable("ASPNETCORE_URLS")}");
-Console.WriteLine($"OPENAI_API_KEY configurada: {!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))}");
+app.MapGet("/health", () => Results.Ok("OK"));
+
+Console.WriteLine($"PORT={Environment.GetEnvironmentVariable("PORT")}");
+Console.WriteLine($"ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS")}");
 
 app.Run();
 }
