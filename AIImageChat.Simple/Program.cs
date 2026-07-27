@@ -1,5 +1,6 @@
 try
 {
+    Console.WriteLine("1 - Builder criado");
     var builder = WebApplication.CreateBuilder(args);
 
     // Configurar porta dinâmica para Railway
@@ -12,6 +13,8 @@ try
         });
     }
 
+    Console.WriteLine("2 - Porta configurada");
+
     // Add services to the container.
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -19,7 +22,11 @@ try
     // Adicionar HttpClient
     builder.Services.AddHttpClient();
 
+    Console.WriteLine("3 - Services configurados");
+
     var app = builder.Build();
+
+    Console.WriteLine("4 - Build concluído");
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
@@ -30,6 +37,8 @@ try
 
     // app.UseHttpsRedirection(); // Comentado para Railway proxy
     app.UseStaticFiles(); // Para servir arquivos estáticos
+
+    Console.WriteLine("5 - Middleware configurado");
 
 // Função para detectar MIME type corretamente
 string GetMimeType(string extension)
@@ -271,10 +280,14 @@ Solicitação do usuário:
 .WithName("EditImage")
 .WithOpenApi();
 
+Console.WriteLine("6 - Endpoints registrados");
+
+app.MapGet("/", () => "OK");
 app.MapGet("/health", () => Results.Ok("OK"));
 
 Console.WriteLine($"PORT={Environment.GetEnvironmentVariable("PORT")}");
 Console.WriteLine($"ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS")}");
+Console.WriteLine("7 - Antes de app.Run()");
 
 app.Run();
 }
