@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "dotnet build AIImageChat.Simple/AIImageChat.Simple.csproj",
+    "buildCommand": "dotnet restore AIImageChat.Simple/AIImageChat.Simple.csproj && dotnet build AIImageChat.Simple/AIImageChat.Simple.csproj -c Release",
     "watchPatterns": [
       "AIImageChat.Simple/**"
     ]
