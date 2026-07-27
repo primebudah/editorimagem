@@ -5,7 +5,11 @@
     "buildCommand": "dotnet restore && dotnet build AIImageChat.Simple/AIImageChat.Simple.csproj -c Release",
     "watchPatterns": [
       "AIImageChat.Simple/**"
-    ]
+    ],
+    "env": {
+      "DOTNET_SDK_VERSION": "8.0",
+      "DOTNET_VERSION": "8.0"
+    }
   },
   "deploy": {
     "startCommand": "dotnet AIImageChat.Simple/bin/Release/net8.0/AIImageChat.Simple.dll",
