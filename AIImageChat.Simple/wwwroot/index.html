@@ -426,14 +426,9 @@
 
         // Função principal de edição
         async function editImage() {
-            console.log('[DEBUG] Botão clicado, função editImage iniciada');
-            
             const promptInput = document.getElementById('promptInput');
             const resultDiv = document.getElementById('result');
             const button = document.getElementById('editButton');
-            
-            console.log('[DEBUG] uploadedFile:', uploadedFile);
-            console.log('[DEBUG] promptInput.value:', promptInput?.value);
             
             if (!uploadedFile) {
                 alert('Selecione uma imagem');
@@ -451,34 +446,17 @@
             button.classList.add('processing-text');
             button.disabled = true;
             
-            console.log('[DEBUG] Botão mudado para Calma FIII...');
-            
             const formData = new FormData();
             formData.append('image', uploadedFile);
             formData.append('prompt', promptInput.value);
             
-            console.log('[DEBUG] FormData criado');
-            
-            const t1 = performance.now();
-            console.log(`[PERF] [T1] Início da requisição frontend: ${t1.toFixed(2)}ms`);
-            
             resultDiv.innerHTML = '';
             
             try {
-                console.log('[DEBUG] Iniciando fetch para /api/edit-image');
-                
-                const t2 = performance.now();
-                console.log(`[PERF] [T2] Preparação concluída: ${t2.toFixed(2)}ms (Delta: ${(t2 - t1).toFixed(2)}ms)`);
-                
                 const response = await fetch('/api/edit-image', {
                     method: 'POST',
                     body: formData
                 });
-                
-                console.log('[DEBUG] Resposta recebida:', response.status);
-                
-                const t3 = performance.now();
-                console.log(`[PERF] [T3] Resposta recebida do backend: ${t3.toFixed(2)}ms (Delta: ${(t3 - t2).toFixed(2)}ms)`);
                 
                 if (!response.ok) {
                     const error = await response.json();
@@ -486,16 +464,13 @@
                 }
                 
                 const blob = await response.blob();
-                const t4 = performance.now();
-                console.log(`[PERF] [T4] Blob recebido: ${t4.toFixed(2)}ms (Delta: ${(t4 - t3).toFixed(2)}ms)`);
-                
                 const imageUrl = URL.createObjectURL(blob);
                 
                 // Mostrar imagem editada no painel direito
                 const editedContainer = document.getElementById('editedImageContainer');
                 editedContainer.innerHTML = `
                     <div class="zoom-container" id="editedZoomContainer">
-                        <img src="${imageUrl}" alt="Imagem editada" id="editedImage" draggable="false" ondragstart="return false;" onload="console.log('[PERF] [T8] Imagem exibida: ' + performance.now().toFixed(2) + 'ms')">
+                        <img src="${imageUrl}" alt="Imagem editada" id="editedImage" draggable="false" ondragstart="return false;">
                         <div class="zoom-controls">
                             <button class="zoom-btn" onclick="zoomIn('edited')">+</button>
                             <button class="zoom-btn" onclick="zoomOut('edited')">-</button>
@@ -514,28 +489,13 @@
                 playZenBell();
                 
                 resultDiv.innerHTML = '';
-                
-                const t5 = performance.now();
-                console.log(`[PERF] [T5] DOM atualizado: ${t5.toFixed(2)}ms (Delta: ${(t5 - t4).toFixed(2)}ms)`);
-                
-                console.log(`[PERF] ===== RESUMO FRONTEND =====`);
-                console.log(`[PERF] Tempo Preparação (T2-T1): ${(t2 - t1).toFixed(2)}ms`);
-                console.log(`[PERF] Tempo Backend (T3-T2): ${(t3 - t2).toFixed(2)}ms`);
-                console.log(`[PERF] Tempo Download (T4-T3): ${(t4 - t3).toFixed(2)}ms`);
-                console.log(`[PERF] Tempo DOM (T5-T4): ${(t5 - t4).toFixed(2)}ms`);
-                console.log(`[PERF] Tempo Total Frontend (T5-T1): ${(t5 - t1).toFixed(2)}ms`);
-                console.log(`[PERF] ===== FIM RESUMO =====`);
             } catch (error) {
-                console.error('[DEBUG] Erro capturado:', error);
-                const tError = performance.now();
-                console.log(`[PERF] [ERRO] Erro em: ${tError.toFixed(2)}ms`);
                 resultDiv.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
             } finally {
                 // Restaurar botão
                 button.textContent = originalButtonText;
                 button.classList.remove('processing-text');
                 button.disabled = false;
-                console.log('[DEBUG] Botão restaurado');
             }
         }
 
