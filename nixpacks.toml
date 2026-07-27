@@ -1,9 +1,0 @@
-[phases.build]
-cmds = ["dotnet restore AIImageChat.Simple/AIImageChat.Simple.csproj --verbosity diagnostic", "dotnet build AIImageChat.Simple/AIImageChat.Simple.csproj -c Release"]
-
-[phases.start]
-cmd = "dotnet AIImageChat.Simple/bin/Release/net8.0/AIImageChat.Simple.dll"
-
-[variables]
-DOTNET_SDK_VERSION = "8.0"
-DOTNET_VERSION = "8.0"
