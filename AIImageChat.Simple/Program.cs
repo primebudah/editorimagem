@@ -1,11 +1,14 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar porta dinâmica para Railway
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5052";
-builder.WebHost.ConfigureKestrel(options =>
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
 {
-    options.ListenAnyIP(int.Parse(port));
-});
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(int.Parse(port));
+    });
+}
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
