@@ -1,44 +1,34 @@
-try
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurar porta dinâmica para Railway
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
 {
-    Console.WriteLine("1 - Builder criado");
-    var builder = WebApplication.CreateBuilder(args);
-
-    // Configurar porta dinâmica para Railway
-    var port = Environment.GetEnvironmentVariable("PORT");
-    if (!string.IsNullOrWhiteSpace(port))
+    builder.WebHost.ConfigureKestrel(options =>
     {
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            options.ListenAnyIP(int.Parse(port));
-        });
-    }
+        options.ListenAnyIP(int.Parse(port));
+    });
+}
 
-    Console.WriteLine("2 - Porta configurada");
+// Add services to the container.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-    // Add services to the container.
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+// Adicionar HttpClient
+builder.Services.AddHttpClient();
 
-    // Adicionar HttpClient
-    builder.Services.AddHttpClient();
+var app = builder.Build();
 
-    Console.WriteLine("3 - Services configurados");
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-    var app = builder.Build();
-
-    Console.WriteLine("4 - Build concluído");
-
-    // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-
-    // app.UseHttpsRedirection(); // Comentado para Railway proxy
-    app.UseStaticFiles(); // Para servir arquivos estáticos
-
-    Console.WriteLine("5 - Middleware configurado");
+// app.UseHttpsRedirection(); // Comentado para Railway proxy
+app.UseDefaultFiles(); // Serve index.html na rota raiz
+app.UseStaticFiles(); // Para servir arquivos estáticos
 
 // Função para detectar MIME type corretamente
 string GetMimeType(string extension)
@@ -280,20 +270,6 @@ Solicitação do usuário:
 .WithName("EditImage")
 .WithOpenApi();
 
-Console.WriteLine("6 - Endpoints registrados");
-
-app.MapGet("/", () => "OK");
 app.MapGet("/health", () => Results.Ok("OK"));
 
-Console.WriteLine($"PORT={Environment.GetEnvironmentVariable("PORT")}");
-Console.WriteLine($"ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS")}");
-Console.WriteLine("7 - Antes de app.Run()");
-
 app.Run();
-}
-catch (Exception ex)
-{
-    Console.WriteLine("===== FATAL ERROR =====");
-    Console.WriteLine(ex.ToString());
-    throw;
-}
