@@ -1,33 +1,35 @@
-var builder = WebApplication.CreateBuilder(args);
-
-// Configurar porta dinâmica para Railway
-var port = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrWhiteSpace(port))
+try
 {
-    builder.WebHost.ConfigureKestrel(options =>
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Configurar porta dinâmica para Railway
+    var port = Environment.GetEnvironmentVariable("PORT");
+    if (!string.IsNullOrWhiteSpace(port))
     {
-        options.ListenAnyIP(int.Parse(port));
-    });
-}
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(int.Parse(port));
+        });
+    }
 
-// Add services to the container.
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    // Add services to the container.
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
-// Adicionar HttpClient
-builder.Services.AddHttpClient();
+    // Adicionar HttpClient
+    builder.Services.AddHttpClient();
 
-var app = builder.Build();
+    var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles(); // Para servir arquivos estáticos
+    // app.UseHttpsRedirection(); // Comentado para Railway proxy
+    app.UseStaticFiles(); // Para servir arquivos estáticos
 
 // Função para detectar MIME type corretamente
 string GetMimeType(string extension)
@@ -269,4 +271,16 @@ Solicitação do usuário:
 .WithName("EditImage")
 .WithOpenApi();
 
+Console.WriteLine("===== APPLICATION STARTING =====");
+Console.WriteLine($"PORT: {Environment.GetEnvironmentVariable("PORT")}");
+Console.WriteLine($"ASPNETCORE_URLS: {Environment.GetEnvironmentVariable("ASPNETCORE_URLS")}");
+Console.WriteLine($"OPENAI_API_KEY configurada: {!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))}");
+
 app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("===== FATAL ERROR =====");
+    Console.WriteLine(ex.ToString());
+    throw;
+}
