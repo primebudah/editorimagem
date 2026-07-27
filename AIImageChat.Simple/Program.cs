@@ -1,9 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar porta 5052
+// Configurar porta dinâmica para Railway
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5052";
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5052);
+    options.ListenAnyIP(int.Parse(port));
 });
 
 // Add services to the container.
@@ -83,15 +84,12 @@ app.MapPost("/api/edit-image", async (HttpRequest request, HttpClient httpClient
             return Results.BadRequest(new { error = ex.Message });
         }
 
-        // Ler API Key do arquivo
-        var apiKeyFilePath = @"c:\Users\uni_t\OneDrive\Desktop\image editor\api_key.txt";
-        var apiKey = File.ReadAllLines(apiKeyFilePath)
-            .FirstOrDefault(line => line.StartsWith("OPENAI_API_KEY="))
-            ?.Substring("OPENAI_API_KEY=".Length).Trim();
+        // Ler API Key da variável de ambiente
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
         if (string.IsNullOrEmpty(apiKey))
         {
-            return Results.BadRequest(new { error = "API Key não configurada" });
+            return Results.BadRequest(new { error = "API Key não configurada (OPENAI_API_KEY)" });
         }
 
         // Ler bytes da imagem
